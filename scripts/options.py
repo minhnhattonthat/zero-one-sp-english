@@ -3,7 +3,7 @@
 Edited map cells get private tile copies (appended to the sheet) so shared tiles stay intact."""
 import struct
 
-from scripts import font_glyphs, huff, lz77
+from scripts import ptr, font_glyphs, huff, lz77
 
 SRC = 0xBC117C
 NEW = 0x1EC8000
@@ -149,9 +149,4 @@ def apply(buf: bytearray):
         draw(scr, *e)
     packed = huff.compress(lz77.compress(scr.pack()))
     buf[NEW:NEW + len(packed)] = packed
-    words = memoryview(buf)[:0x1000000].cast('I')
-    hits = [i for i, w in enumerate(words) if w == 0x08000000 | SRC]
-    for i in hits:
-        words[i] = 0x08000000 | NEW
-    words.release()
-    assert hits, 'no pointer to options screen'
+    ptr.repoint(buf, {SRC: NEW})

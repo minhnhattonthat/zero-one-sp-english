@@ -2,7 +2,7 @@
 Replaces the small 'SFアドベンチャー' subtitle under the logo with 'SF ADVENTURE' (3x5 font)."""
 import struct
 
-from scripts import huff, lz77
+from scripts import ptr, huff, lz77
 from scripts.labels import TINY
 
 SRC = 0xBC3114
@@ -81,9 +81,4 @@ def apply(buf: bytearray):
         pen += len(GLYPHS[c][0]) + 1
     packed = huff.compress(lz77.compress(scr.pack()))
     buf[NEW:NEW + len(packed)] = packed
-    words = memoryview(buf)[:0x1000000].cast('I')
-    hits = [i for i, w in enumerate(words) if w == 0x08000000 | SRC]
-    for i in hits:
-        words[i] = 0x08000000 | NEW
-    words.release()
-    assert hits, 'no pointer to title background'
+    ptr.repoint(buf, {SRC: NEW})

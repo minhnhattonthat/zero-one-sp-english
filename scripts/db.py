@@ -17,7 +17,7 @@ import json
 import struct
 import sys
 
-from scripts import rom
+from scripts import ptr, rom
 from scripts.extract import save_json
 from scripts.insert import encode_checked
 from scripts.script import decode_words
@@ -136,7 +136,10 @@ def apply(buf: bytearray, entries=None):
     entries = entries if entries is not None else load()
     by = {(e['blob'], e['id']): e for e in entries}
     pos, data = NEW, b''
+    moves, old = {}, BASE
     for b, blob in enumerate(blobs(bytes(buf))):
+        moves[old] = NEW + len(data)
+        old += blob['size']
         titles, pages = [], []
         for i, (t, pg) in enumerate(zip(blob['titles'], blob['pages'])):
             e = by.get((b, i), {})
@@ -146,12 +149,11 @@ def apply(buf: bytearray, entries=None):
                           for j, p in enumerate(pg)])
         data += build_blob(titles, pages, blob['order'])
     buf[NEW:NEW + len(data)] = data
-    words = memoryview(buf)[:0x1000000].cast('I')
-    hits = [i for i, w in enumerate(words) if w == 0x08000000 | BASE]
-    for i in hits:
-        words[i] = 0x08000000 | NEW
-    words.release()
-    assert hits, 'no database pointer found'
+    found = ptr.sites(bytes(buf), list(moves))
+    assert found[BASE], 'no database pointer found'
+    for o, n in moves.items():
+        for site in found[o]:
+            ptr.write(buf, site, n)
 
 
 def load():

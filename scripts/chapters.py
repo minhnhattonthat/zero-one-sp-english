@@ -3,7 +3,7 @@ each Huffman(4-bit) of LZ77 of a [sheet, palette, map] container (same layout as
 The kanji are cleared and the English title is drawn at 2x scale."""
 import struct
 
-from scripts import font_glyphs, huff, lz77
+from scripts import font_glyphs, huff, lz77, ptr
 from scripts.options import Screen, glyph_width
 from scripts.titles import TITLES
 
@@ -46,11 +46,7 @@ def draw_title(scr, text):
 
 def apply(buf: bytearray):
     ptrs = struct.unpack_from('<20I', buf, TABLE)
-    want = set(ptrs)
-    sites = {}
-    for k, w in enumerate(memoryview(buf)[:0x1000000].cast('I')):
-        if w in want:
-            sites.setdefault(w, []).append(k * 4)
+    sites = ptr.sites(bytes(buf), [p - 0x08000000 for p in ptrs])
     pos = NEW
     for i, (p, title) in enumerate(zip(ptrs, TITLES)):
         src = p - 0x08000000
@@ -58,7 +54,7 @@ def apply(buf: bytearray):
         draw_title(scr, title.upper())
         packed = huff.compress(lz77.compress(scr.pack()))
         buf[pos:pos + len(packed)] = packed
-        for site in sites[p]:
-            buf[site:site + 4] = (0x08000000 | pos).to_bytes(4, 'little')
+        for site in sites[src]:
+            ptr.write(buf, site, pos)
         pos += -(-len(packed) // 4) * 4
     assert pos < 0x1EE0000

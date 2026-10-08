@@ -3,7 +3,7 @@
 Ten 64x16 buttons (unselected purple fill 1, selected orange fill 5; text color B)."""
 import struct
 
-from scripts import font_glyphs, huff, lz77
+from scripts import ptr, font_glyphs, huff, lz77
 
 SRC = 0xBC62D0
 NEW = 0x1EC0000
@@ -59,9 +59,4 @@ def apply(buf: bytearray):
     redraw(container)
     packed = huff.compress(lz77.compress(bytes(container)))
     buf[NEW:NEW + len(packed)] = packed
-    words = memoryview(buf)[:0x1000000].cast('I')
-    hits = [i for i, w in enumerate(words) if w == 0x08000000 | SRC]
-    for i in hits:
-        words[i] = 0x08000000 | NEW
-    words.release()
-    assert hits, 'no pointer to title buttons'
+    ptr.repoint(buf, {SRC: NEW})

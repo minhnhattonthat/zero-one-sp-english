@@ -38,5 +38,28 @@ class TestUI(unittest.TestCase):
         self.assertEqual(clean[ui.FREE:ui.FREE + 7], bytes.fromhex('8264828e828400'))
 
 
+
+class TestIntegrity(unittest.TestCase):
+    """Repointing must only touch pointer tables, never data inside other resources."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.clean = rom.load_clean()
+        cls.out, _ = build.build_rom({}, {})
+
+    def test_other_resources_intact(self):
+        for idx in range(rom.DIR_COUNT):
+            if idx in rom.SCRIPT_IDS:
+                continue
+            self.assertEqual(lz77.decompress(self.out, rom.res_ptr(self.out, idx)),
+                             lz77.decompress(self.clean, rom.res_ptr(self.clean, idx)), idx)
+
+    def test_db_blobs_repointed(self):
+        from scripts import db
+        table = memoryview(self.out[0x644040:0x644080]).cast('I')
+        for old in (0x0862F3A4, 0x08632EFC, 0x08635D0C):
+            self.assertNotIn(old, table)
+
+
 if __name__ == '__main__':
     unittest.main()

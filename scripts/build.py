@@ -3,7 +3,7 @@ import json
 import subprocess
 import sys
 
-from scripts import asm, buttons, chapters, db, extract, font, labels, lz77, options, rom, tags, titlebg, titles, ui
+from scripts import asm, ptr, buttons, chapters, db, extract, font, labels, lz77, options, rom, tags, titlebg, titles, ui
 from scripts.insert import build_block
 
 OUT = rom.ROOT / 'build' / 'zero_one_sp_en.gba'
@@ -15,14 +15,6 @@ FREE = 0x1000000            # expanded area for relocated script blocks
 SIZE = 32 * 1024 * 1024
 
 
-def pointer_sites(rom_bytes: bytes, targets) -> dict:
-    """Aligned u32 locations (in the original 16 MiB) holding 0x08000000+target."""
-    want = {0x08000000 | t: t for t in targets}
-    sites = {t: [] for t in targets}
-    for i, w in enumerate(memoryview(rom_bytes[:0x1000000]).cast('I')):
-        if w in want:
-            sites[want[w]].append(i * 4)
-    return sites
 
 
 def load_overrides():
@@ -40,7 +32,7 @@ def build_rom(tm: dict, opts: dict):
     buf = bytearray(clean) + b'\xff' * (SIZE - len(clean))
     pos = FREE
     report = []
-    sites = pointer_sites(clean, [rom.res_ptr(clean, i) for i in rom.SCRIPT_IDS])
+    sites = ptr.sites(clean, [rom.res_ptr(clean, i) for i in rom.SCRIPT_IDS])
     for idx in rom.SCRIPT_IDS:
         old = rom.res_ptr(clean, idx)
         raw, warns = build_block(idx, lz77.decompress(clean, old), tm, opts)
