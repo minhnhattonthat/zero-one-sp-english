@@ -3,7 +3,7 @@ import json
 import subprocess
 import sys
 
-from scripts import asm, extract, font, lz77, rom, tags, titles, ui
+from scripts import asm, db, extract, font, lz77, rom, tags, titles, ui
 from scripts.insert import build_block
 
 OUT = rom.ROOT / 'build' / 'zero_one_sp_en.gba'
@@ -31,7 +31,7 @@ def load_overrides():
 
 
 def default_opts():
-    return {'overrides': load_overrides(), 'widths': font.build(b'')[2], 'patches': [asm.apply, asm.patch_loader, lambda b: ui.apply(b, ui.load()), tags.apply, titles.apply]}
+    return {'overrides': load_overrides(), 'widths': font.build(b'')[2], 'patches': [asm.apply, asm.patch_loader, lambda b: ui.apply(b, ui.load()), tags.apply, titles.apply, db.apply]}
 
 
 def build_rom(tm: dict, opts: dict):
