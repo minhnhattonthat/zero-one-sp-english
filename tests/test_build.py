@@ -25,5 +25,18 @@ class TestBuild(unittest.TestCase):
         self.assertEqual(rom.res_ptr(out, 0), rom.res_ptr(clean, 0))
 
 
+
+class TestUI(unittest.TestCase):
+    def test_ui_relocation(self):
+        from scripts import ui
+        clean = bytearray(rom.load_clean()) + b'\xff' * (16 << 20)
+        ents = ui.extract(bytes(clean))
+        ents[0]['en'] = 'End'
+        ui.apply(clean, ents[:1])
+        old = int(ents[0]['addr'], 16) | 0x08000000
+        self.assertNotIn(old, memoryview(bytes(clean[:0x1000000])).cast('I'))
+        self.assertEqual(clean[ui.FREE:ui.FREE + 7], bytes.fromhex('8264828e828400'))
+
+
 if __name__ == '__main__':
     unittest.main()
