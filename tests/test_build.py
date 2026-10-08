@@ -5,7 +5,7 @@ from scripts import build, lz77, rom
 class TestBuild(unittest.TestCase):
     def test_empty_tm_preserves_blocks(self):
         clean = rom.load_clean()
-        out, report = build.build_rom({}, {})
+        out, report = build.build_rom({}, {'overrides': {}})
         words = memoryview(out[:0x1000000]).cast('I')
         self.assertEqual(len(out), 32 * 1024 * 1024)
         for idx in rom.SCRIPT_IDS:
