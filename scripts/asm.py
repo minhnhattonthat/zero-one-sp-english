@@ -1,5 +1,5 @@
 """Assemble asm/vwf.s with keystone and patch the draw_glyph hook."""
-from keystone import KS_ARCH_ARM, KS_MODE_ARM, Ks
+from keystone import KS_ARCH_ARM, KS_MODE_ARM, KS_MODE_THUMB, Ks
 
 from scripts import font
 from scripts.rom import ROOT
@@ -10,9 +10,32 @@ FONT = CODE + 0x600
 HOOK = 0x1059A              # inside draw_glyph, after its push
 
 
-def assemble(src: str, addr: int) -> bytes:
-    enc, _ = Ks(KS_ARCH_ARM, KS_MODE_ARM).asm(src, 0x08000000 + addr)
+def assemble(src: str, addr: int, thumb=False) -> bytes:
+    enc, _ = Ks(KS_ARCH_ARM, KS_MODE_THUMB if thumb else KS_MODE_ARM).asm(src, 0x08000000 + addr)
     return bytes(enc)
+
+
+LOADER = 0x1DC74            # scene loader, right after r1 = scene block pointer
+
+
+def patch_loader(buf: bytearray):
+    """Skip LZ77 into the 0x02007000 buffer; point the interpreter at the (uncompressed) block itself.
+    Original: decompress(r1, 0x02007000); state+0x68 = buf+0x10; state+0x64 = state+0x60 = buf+[buf+8]."""
+    assert buf[LOADER:LOADER + 2] == bytes.fromhex('0d4a'), 'unexpected loader bytes'
+    code = assemble('''
+        adds r3, r1, #0
+        ldr  r0, [pc, #0x38]
+        adds r2, r3, #0
+        adds r2, #0x10
+        str  r2, [r0, #0x68]
+        ldr  r2, [r3, #8]
+        adds r2, r2, r3
+        str  r2, [r0, #0x64]
+        str  r2, [r0, #0x60]
+        b    0x0801dc9e
+    ''', LOADER, thumb=True)
+    assert int.from_bytes(buf[0x1DCB0:0x1DCB4], 'little') == 0x03003010
+    buf[LOADER:LOADER + len(code)] = code
 
 
 def apply(buf: bytearray):

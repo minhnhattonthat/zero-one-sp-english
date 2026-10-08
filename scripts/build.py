@@ -1,14 +1,16 @@
 """Build the translated ROM: python -m scripts.build"""
-import json
 import subprocess
 import sys
 
-from scripts import extract, lz77, rom
+from scripts import asm, extract, font, lz77, rom
 from scripts.insert import build_block
 
 OUT = rom.ROOT / 'build' / 'zero_one_sp_en.gba'
 PATCH = rom.ROOT / 'build' / 'zero_one_sp_en.xdelta'
 FREE = 0x1000000            # expanded area for relocated script blocks
+# Scene scripts are stored uncompressed and run straight from ROM (asm.patch_loader): the
+# EWRAM buffer at 0x02007000 only holds ~80 KB, too small for English blocks.
+# The resource directory keeps LZ77 copies for any other loader.
 SIZE = 32 * 1024 * 1024
 
 
@@ -22,7 +24,12 @@ def pointer_sites(rom_bytes: bytes, targets) -> dict:
     return sites
 
 
+def default_opts():
+    return {'widths': font.build(b'')[2], 'patches': [asm.apply, asm.patch_loader]}
+
+
 def build_rom(tm: dict, opts: dict):
+    opts = {**default_opts(), **opts}
     clean = rom.load_clean()
     buf = bytearray(clean) + b'\xff' * (SIZE - len(clean))
     pos = FREE
@@ -32,13 +39,20 @@ def build_rom(tm: dict, opts: dict):
         old = rom.res_ptr(clean, idx)
         raw, warns = build_block(idx, lz77.decompress(clean, old), tm, opts)
         report += warns
+        raw_at = pos
+        buf[pos:pos + len(raw)] = raw
+        pos += -(-len(raw) // 4) * 4
         comp = lz77.compress(raw)
         buf[pos:pos + len(comp)] = comp
         if not sites[old]:
             raise RuntimeError(f'no pointer to block {idx}')
+        dir_site = rom.DIR + 4 * idx
         for site in sites[old]:
-            buf[site:site + 4] = (0x08000000 | pos).to_bytes(4, 'little')
+            target = pos if site == dir_site else raw_at
+            buf[site:site + 4] = (0x08000000 | target).to_bytes(4, 'little')
         pos += len(comp)
+    if pos > asm.CODE:
+        raise RuntimeError(f'script data overflows into code area: {pos:#x}')
     for patch in opts.get('patches', ()):
         patch(buf)
     return bytes(buf), report

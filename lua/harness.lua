@@ -1,7 +1,7 @@
 -- Generic driver. Expects global CFG (set by scripts/emu.py):
 --   out        dir for screenshots/logs (trailing slash)
 --   frames     stop after this many frames (writes out.."done")
---   mash       press A for 2 frames every `mash` frames (0 = off)
+--   mash       press mash_key (default A; B advances dialogue) for 6 frames every `mash` frames
 --   inputs     { {frame, keyname, duration}, ... } keynames: A B START SELECT UP DOWN LEFT RIGHT L R
 --   shot_every screenshot interval (0 = off); shots = {frame,...} explicit
 --   save_at    { [frame] = path } savestates to write
@@ -30,7 +30,7 @@ callbacks:add("frame", function()
   for _, ev in ipairs(CFG.inputs or {}) do
     if f >= ev[1] and f < ev[1] + (ev[3] or 2) then keys = keys | (1 << C.GBA_KEY[ev[2]]) end
   end
-  if (CFG.mash or 0) > 0 and f % CFG.mash < 6 then keys = keys | (1 << C.GBA_KEY.A) end
+  if (CFG.mash or 0) > 0 and f % CFG.mash < 6 then keys = keys | (1 << C.GBA_KEY[CFG.mash_key or "A"]) end
   CUR_KEYS = keys
   if ((CFG.shot_every or 0) > 0 and f % CFG.shot_every == 0) or shotset[f] then
     emu:screenshot(CFG.out .. string.format("f%06d.png", f))

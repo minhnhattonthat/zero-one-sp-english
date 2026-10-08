@@ -15,6 +15,12 @@ class TestBuild(unittest.TestCase):
             self.assertEqual(lz77.decompress(out, p), lz77.decompress(clean, rom.res_ptr(clean, idx)), idx)
             old = 0x08000000 + rom.res_ptr(clean, idx)
             self.assertNotIn(old, words, idx)   # every aligned reference repointed
+        # scene table points at uncompressed copies (loader patched to run scripts from ROM)
+        for k in range(10):
+            ptr = int.from_bytes(out[0x3AFB10 + 4 * k:0x3AFB14 + 4 * k], 'little') - 0x08000000
+            self.assertGreaterEqual(ptr, 0x1000000)
+            self.assertEqual(out[ptr:ptr + 4], bytes([0x10, 0, 0, 0]))
+        self.assertEqual(out[0x1DC74:0x1DC76], bytes.fromhex('0b1c'))   # adds r3, r1, #0
         # untouched resources keep their pointers
         self.assertEqual(rom.res_ptr(out, 0), rom.res_ptr(clean, 0))
 
