@@ -23,9 +23,13 @@
 - Hook at 0x0801059A (after draw_glyph's push): `ldr r5,[pc,#4]; bx r5; nop; .word 0x09F00000`.
 - ARM routine at ROM 0x1F00000 (`asm/vwf.s`): glyph idx < 0x180 with VWF_MAP[idx] != 0xFF → blit our glyph at pixel pen (clipped to win[7]*8), else original path.
 - Pen state at EWRAM 0x0203FFF0: u32 last win, u8 last row, u8 pen x. Reset when win/row changes or col==0. JP glyphs set pen=(col+1)*8.
+- Also sets the map entries of the cells each glyph covers via 0x080078E4(layer, win[9] palette, win[1]+col, win[2]+row*2, w, 2),
+  like the original. Choices rely on it: rows get palettes 13/14 and the game swaps those palettes to move the highlight.
 - Font: `scripts/font_glyphs.py` (narrow, ~4.4 px avg), ink color 4, auto shadow color 2 at (+1,+1).
 
 ## mGBA scripting gotchas
+- States saved with a real BIOS crash under HLE ("Jumped to invalid address 04000000"): `emu.run(..., bios=path)`.
+- Choice: UP/DOWN + A selects. Dialogue advance: alternate A/B presses (each key alone stalls on some boxes).
 - Load savestates with CLI `-t`, not `emu:loadStateFile` inside callbacks (game wedges).
 - Set keys in `keysRead` callback. Hold A ≥6 frames; game ignores some presses (timing).
 - Watchpoints miss STM/DMA; range watchpoints work for LDR/STR. Fast-forward via `-C fpsTarget=3000 -C audioSync=0 -C videoSync=0`.

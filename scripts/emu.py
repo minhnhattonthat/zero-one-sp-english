@@ -22,7 +22,8 @@ def lua_val(v):
     return '{' + ','.join(lua_val(x) for x in v) + '}'
 
 
-def run(rom, name, cfg: dict, extra_lua: str = '', timeout=600, state=None):
+def run(rom, name, cfg: dict, extra_lua: str = '', timeout=600, state=None, bios=None):
+    """bios: real GBA BIOS path; needed for savestates made with one (HLE BIOS crashes on them)."""
     out = ROOT / 'build' / 'runs' / name
     shutil.rmtree(out, ignore_errors=True)
     out.mkdir(parents=True)
@@ -34,6 +35,8 @@ def run(rom, name, cfg: dict, extra_lua: str = '', timeout=600, state=None):
             '-C', 'volume=0', '--script', str(script)]
     if state:
         args += ['-t', str(state)]
+    if bios:
+        args += ['-C', f'gba.bios={bios}', '-C', 'useBios=1']
     p = subprocess.Popen(args + [str(rom)])
     t = time.time()
     try:

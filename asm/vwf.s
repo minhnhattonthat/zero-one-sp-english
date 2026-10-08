@@ -56,13 +56,16 @@ reset:
     str   r0, [r6]
     strb  r3, [r6, #4]
 have_pen:
+    push  {r4}                        @ start pen
     bl    blit
-    ldr   r5, [sp]
+    ldr   r5, [sp, #4]
     cmp   r5, #0xff
     beq   one_glyph                   @ (keystone mis-assembles conditional bl to a label)
     bl    blit
 one_glyph:
+    pop   {r5}                        @ start pen
     add   sp, sp, #4
+    bl    mark
     ldr   r6, lit_state
     strb  r4, [r6, #5]
     ldr   r5, [sp, #8]                @ col argument
@@ -143,6 +146,37 @@ blit_done:
     pop   {r0, r3, lr}
     bx    lr
 
+@ mark: set the map entries (palette win[9]) of the cells covered by pen r5..r4 on row r3 of window r0,
+@ as the original draw_glyph does per glyph; choice highlighting works through these palettes.
+mark:
+    push  {r0-r4, lr}
+    ldrb  r12, [r0, #7]               @ width in tiles
+    mov   r1, r5, lsr #3              @ first cell
+    sub   r2, r4, #1
+    mov   r2, r2, lsr #3              @ last cell
+    cmp   r2, r12
+    subge r2, r12, #1
+    subs  r2, r2, r1
+    blt   mark_done
+    add   r2, r2, #1                  @ cell count
+    sub   sp, sp, #8
+    str   r2, [sp]                    @ w
+    mov   r12, #2
+    str   r12, [sp, #4]               @ h
+    ldrb  r12, [r0, #1]
+    add   r2, r12, r1                 @ map x
+    ldrb  r12, [r0, #2]
+    add   r3, r12, r3, lsl #1         @ map y
+    ldrb  r1, [r0, #9]                @ palette
+    ldrb  r0, [r0]                    @ layer
+    ldr   r12, lit_mapset
+    mov   lr, pc
+    bx    r12
+    add   sp, sp, #8
+mark_done:
+    pop   {r0-r4, lr}
+    bx    lr
+
 jp_path:
     ldr   r5, lit_state               @ JP glyph: pen = (col + 1) * 8
     str   r0, [r5]
@@ -165,3 +199,4 @@ lit_state:  .word 0x0203FFF0
 lit_desc:   .word 0x030020C0
 lit_resume: .word 0x080105A5
 lit_pairlo: .word 0x00009EE0
+lit_mapset: .word 0x080078E5          @ Thumb: (layer, pal, x, y, [sp]=w, [sp+4]=h)
