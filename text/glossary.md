@@ -97,3 +97,11 @@ Other names: 常光寺 Joukouji (Nagomu's surname: Joukouji Nagomu); 関口シ�
 | 暗証番号 | PIN code |
 | 合宿 | club retreat |
 | ケジメ | closure |
+
+## Decisions from earlier batches (binding)
+- 警部 → Inspector (Inspector Ohtsuki); 警視 → Superintendent (Superintendent Blavatsky); 刑事 → Detective (Detective Akiyama)
+- 義手 → prosthetic arm; ハンディーキャッパー → 'handicapped'
+- 電波捜査班 → Radio Investigation Unit; 体育教師 → PE Teacher
+- Developer sprite-test lines (表情/服装/1枚/口パク with codes like Ｆ０３０１) → "<Name> Face F0301 ..." / "Outfit" / "Single" / "lip-sync", keep codes
+- 駅前 → Station Square; ゲームセンター → arcade; 姉さん (Nagomu's sister) → Sis; 火事場のクソ力 → hysterical strength
+- ケイト・ブラバスキー → Kate Blavatsky; ミスターオオツキ → Mister Ohtsuki; 謎の青年 → mysterious young man
