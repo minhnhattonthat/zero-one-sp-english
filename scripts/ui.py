@@ -53,29 +53,33 @@ def encode(s: str) -> bytes:
     return bytes(out)
 
 
+PTR_LIMIT = 0x400000      # code + rodata tables; matches beyond this are coincidences inside graphics
+
+
 def pointer_sites(buf: bytes, addrs):
     want = {0x08000000 | a: a for a in addrs}
     sites = {a: [] for a in addrs}
-    for k, v in enumerate(memoryview(buf[:0x1000000]).cast('I')):
+    for k, v in enumerate(memoryview(buf[:PTR_LIMIT]).cast('I')):
         if v in want:
             sites[want[v]].append(k * 4)
     return sites
 
 
 def extract(r: bytes) -> list:
-    found = []
-    i = REGION[0]
-    while i < REGION[1]:
-        j = r.find(b'\0', i)
+    """Every pointer target inside REGION that decodes as a JP string (up to its NUL)."""
+    lo, hi = 0x08000000 | REGION[0], 0x08000000 | REGION[1]
+    targets = sorted({v & 0xFFFFFF for v in memoryview(r[:PTR_LIMIT]).cast('I') if lo <= v < hi})
+    out = []
+    for a in targets:
+        if a in SKIP:
+            continue
         try:
-            t = decode(r[i:j])
-            if re.search(r'[぀-ヿ一-鿿]', t):
-                found.append((i, t))
+            t = decode(r[a:r.find(b'\0', a)])
         except (ValueError, UnicodeDecodeError):
-            pass
-        i = j + 1
-    sites = pointer_sites(r, [a for a, _ in found])
-    return [{'addr': hex(a), 'jp': t, 'en': ''} for a, t in found if sites[a] and a not in SKIP]
+            continue
+        if re.search(r'[　-〿぀-ヿ一-鿿！-～]', t):
+            out.append({'addr': hex(a), 'jp': t, 'en': ''})
+    return out
 
 
 def apply(buf: bytearray, entries: list):

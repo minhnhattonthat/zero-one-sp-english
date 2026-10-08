@@ -93,6 +93,10 @@ advance:
     ldr   r6, lit_state
     strb  r4, [r6, #5]
     pop   {r0-r3, r6, r8-r11}
+    add   r12, r4, #7                 @ putc wraps when win[5] (col) >= win[7]: make col
+    mov   r12, r12, lsr #3            @ follow the pixel pen, ceil(pen/8) - 1 (putc adds 1)
+    sub   r12, r12, #1
+    strb  r12, [r0, #5]
     pop   {r4, r5, r7, lr}            @ draw_glyph epilogue
     bx    lr
 
