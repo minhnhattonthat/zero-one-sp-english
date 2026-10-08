@@ -105,3 +105,11 @@ Other names: 常光寺 Joukouji (Nagomu's surname: Joukouji Nagomu); 関口シ�
 - Developer sprite-test lines (表情/服装/1枚/口パク with codes like Ｆ０３０１) → "<Name> Face F0301 ..." / "Outfit" / "Single" / "lip-sync", keep codes
 - 駅前 → Station Square; ゲームセンター → arcade; 姉さん (Nagomu's sister) → Sis; 火事場のクソ力 → hysterical strength
 - ケイト・ブラバスキー → Kate Blavatsky; ミスターオオツキ → Mister Ohtsuki; 謎の青年 → mysterious young man
+- 博士 / ドクター (Nobuhiko) → the Doctor; コウイチ (Mita) → Kouichi; 五色沢の研究所 → the Goshikizawa laboratory; 科学班 → forensics team
+- ルード壊滅作戦 → Operation Destroy Rude; A１０神経 → A10 nerves; ロバート・ウィルソン → Robert Wilson; ジョージ → George
+- 警部補 → Assistant Inspector (rank); 秋山刑事 / 刑事さん → Detective Akiyama / Detective; 殺し屋 → hitman; 刺客 → assassin; 眼帯 → eyepatch
+- 長船 / オサフネ → Osafune (Detective Osafune); 堤さん → Tsutsumi-san (Nanase's surname: Tsutsumi Nanase); 立体プロジェクター → 3D projector
+- カマキリジャック → Kamakiri Jack; 連続要人密室暗殺事件 → Serial Locked-Room VIP Assassinations; 電波探知機 → radio-wave detector
+- Katakana-only speech (machine/telepathic/phone voices) → ALL CAPS, stilted, no contractions
+- Full names: 角川ツトム → Kadokawa Tsutomu; 小田トモ → Oda Tomo; 堤ナナセ → Tsutsumi Nanase
+- 肝だめし → test of courage; 部室 → clubroom; デジャビュ → deja vu; 木刀 → wooden sword; ツルギ流星群 → Tsurugi meteor shower; 宿直 → night duty
