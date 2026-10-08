@@ -1,0 +1,30 @@
+"""Assemble asm/vwf.s with keystone and patch the draw_glyph hook."""
+from keystone import KS_ARCH_ARM, KS_MODE_ARM, Ks
+
+from scripts import font
+from scripts.rom import ROOT
+
+CODE = 0x1F00000            # ROM offset of the VWF routine
+MAP = CODE + 0x400
+FONT = CODE + 0x600
+HOOK = 0x1059A              # inside draw_glyph, after its push
+
+
+def assemble(src: str, addr: int) -> bytes:
+    enc, _ = Ks(KS_ARCH_ARM, KS_MODE_ARM).asm(src, 0x08000000 + addr)
+    return bytes(enc)
+
+
+def apply(buf: bytearray):
+    vmap, glyphs, _ = font.build(bytes(buf))
+    src = (ROOT / 'asm' / 'vwf.s').read_text()
+    src = src.replace('VWF_MAP', hex(0x08000000 + MAP)).replace('VWF_FONT', hex(0x08000000 + FONT))
+    code = assemble(src, CODE)
+    assert len(code) <= MAP - CODE, len(code)
+    buf[CODE:CODE + len(code)] = code
+    buf[MAP:MAP + len(vmap)] = vmap
+    buf[FONT:FONT + len(glyphs)] = glyphs
+    # ldr r5,[pc,#4]; bx r5; nop; .word vwf_entry (ARM)
+    hook = bytes.fromhex('014d2847c046') + (0x08000000 + CODE).to_bytes(4, 'little')
+    assert buf[HOOK:HOOK + 10] == bytes.fromhex('89b004af3860 0c1c111c'.replace(' ', '')), 'unexpected bytes at hook'
+    buf[HOOK:HOOK + 10] = hook
