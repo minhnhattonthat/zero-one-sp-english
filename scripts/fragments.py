@@ -64,9 +64,12 @@ def split(per=120):
 
 def merge():
     ovr = json.loads(OVR.read_text(encoding='utf-8')) if OVR.exists() else {}
+    live = {f'{i}:{k}' for ch in chains(rom.load_clean()) for i, k, _, _ in ch}
     for p in sorted(DIR.glob('f*.out.json')):
         data = json.loads(p.read_text(encoding='utf-8'))
         for key, en in data.items():
+            if key not in live:          # no longer a fragment under the current continuation rule
+                continue
             encode_checked(normalize(en), key)
             ovr[key] = normalize(en)
     extract.save_json(OVR, dict(sorted(ovr.items())))

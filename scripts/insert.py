@@ -31,11 +31,24 @@ def encode_checked(text: str, where: str) -> list:
     return encode_text(text)
 
 
+# ops seen between two pieces of one line: waits/pauses, tag side, portrait, 0x4503 n = wait n frames
+FLOW_OPS = {0x4013, 0x4005, 0x4006, 0x4007, 0x4008, 0x4009, 0x400A, 0x4050, 0x4053, 0x4054} | DIALOGUE_OPS
+
+
 def continues(words: list, prev, run) -> bool:
-    """run continues prev's text in the same box (prev waited with 0x4013, no new box/end in between)."""
+    """run continues prev's text in the same box (prev waited with 0x4013, only flow ops in between)."""
+    if prev.next != 0x4013 or run.prev not in DIALOGUE_OPS:
+        return False
     gap = words[prev.end:run.start]
-    return (prev.next == 0x4013 and run.prev in DIALOGUE_OPS and len(gap) < 12
-            and 0x4030 not in gap and 0x4002 not in gap)
+    i = 0
+    while i < len(gap):
+        if gap[i] == 0x4503:
+            i += 2
+        elif gap[i] in FLOW_OPS:
+            i += 1
+        else:
+            return False
+    return True
 
 
 def end_state(pages, start_px, start_line):
