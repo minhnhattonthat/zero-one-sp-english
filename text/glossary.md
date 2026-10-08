@@ -3,6 +3,7 @@
 ## Style (binding)
 - Faithful translation. Keep Japanese name order and honorifics: -san, -kun, -chan, -sama, -sensei, -senpai.
   Family-name + san stays (Mita-san, Kiyota-san). Bare names stay bare.
+- 【...】 (decision/choice summary lines) → [...].
 - 「...」 dialogue → "..." (double quotes). （...） thoughts → (...). 『...』 key terms/quotes inside a line → '...' (single quotes).
   If the JP line has no brackets (narration), add none.
 - ‥‥ / …… → "..." (three dots, no spaces). Keep ！？ emphasis as !, ?, !!, ?!.
@@ -35,7 +36,7 @@
 | 16 | アキラ (長尾アキラ) | Akira (Nagao Akira) |
 | 17 | 大本 | Ohmoto |
 | 18 | ナナセ | Nanase |
-| 19 | ゴート | Goat |
+| 19 | ゴート | Goat (name/nickname; keep "Goat") |
 | 20 / 42 | 刑事A / 刑事B | Detective A / Detective B |
 | 21 | ケイト | Kate |
 | 22 | 秋山 | Akiyama |
@@ -65,7 +66,8 @@
 | 58 | マイ | Mai |
 | 0 / 1 | キャスター / アシスタント | Newscaster / Assistant |
 
-Other names: ルード Rude (Lude?) → "Rude"; ブラバスキー Blavatsky; ドクタージョウコウジ Dr. Joukouji; ゴトウ Gotou; ツムラ Tsumura;
+Other names: 常光寺 Joukouji (Nagomu's surname: Joukouji Nagomu); 関口シン Sekiguchi Shin; 三船 Mifune (Aiko's surname: Mifune Aiko);
+ルード → "Rude"; ブラバスキー Blavatsky; ドクタージョウコウジ Dr. Joukouji; ゴトウ Gotou; ツムラ Tsumura;
 長尾 Nagao; 堤 Tsutsumi; 五色沢 Goshikizawa; 小田 Oda; 失追会長 Chairman Shitsui; ノア Noah; ゼロワン Zero One.
 
 ## Terms
@@ -93,3 +95,5 @@ Other names: ルード Rude (Lude?) → "Rude"; ブラバスキー Blavatsky; �
 | 時限装置 | time-delay device |
 | 軍事衛星 | military satellite |
 | 暗証番号 | PIN code |
+| 合宿 | club retreat |
+| ケジメ | closure |
