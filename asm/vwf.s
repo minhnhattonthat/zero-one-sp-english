@@ -8,6 +8,7 @@
 @   index >= 0x9EE0 -> ASCII pair: code = index - 0x7EC0 = (c1 << 8) | c2, two glyphs
 @                      (UI strings pack two ASCII chars per 2-byte code; c2 = 0x7F is padding)
 @ Everything else takes the original path.
+@ Pen state at 0x0203FFF0: u32 window, u8 row, u8 pen x, u8 last col.
 .arm
 vwf_entry:
     ldr   r5, lit_pairlo
@@ -42,8 +43,14 @@ vwf:
     bne   reset
     cmp   r2, #0
     beq   reset
-    ldrb  r4, [r6, #5]
-    b     have_pen
+    ldrb  r4, [r6, #5]                @ continue only if col is the expected next one:
+    ldrb  r7, [r6, #6]                @ last col + 1 (scene text) or ceil(pen/8) (putc)
+    add   r7, r7, #1
+    cmp   r2, r7
+    beq   have_pen
+    add   r7, r4, #7
+    cmp   r2, r7, lsr #3
+    beq   have_pen
 reset:
     mov   r4, r2, lsl #3
     str   r0, [r6]
@@ -58,6 +65,8 @@ one_glyph:
     add   sp, sp, #4
     ldr   r6, lit_state
     strb  r4, [r6, #5]
+    ldr   r5, [sp, #8]                @ col argument
+    strb  r5, [r6, #6]
     pop   {r0-r3, r6, r8-r11}
     add   r12, r4, #7                 @ putc wraps when win[5] (col) >= win[7]: make col
     mov   r12, r12, lsr #3            @ follow the pixel pen, ceil(pen/8) - 1 (putc adds 1)
@@ -141,6 +150,7 @@ jp_path:
     add   r4, r2, #1
     mov   r4, r4, lsl #3
     strb  r4, [r5, #5]
+    strb  r2, [r5, #6]
     sub   sp, sp, #0x24               @ replaced instructions
     add   r7, sp, #0x10
     str   r0, [r7]
