@@ -31,19 +31,42 @@ def encode_checked(text: str, where: str) -> list:
     return encode_text(text)
 
 
+def continues(words: list, prev, run) -> bool:
+    """run continues prev's text in the same box (prev waited with 0x4013, no new box/end in between)."""
+    gap = words[prev.end:run.start]
+    return (prev.next == 0x4013 and run.prev in DIALOGUE_OPS and len(gap) < 12
+            and 0x4030 not in gap and 0x4002 not in gap)
+
+
+def end_state(pages, start_px, start_line):
+    """(px, line) where the last page's text ends."""
+    last = pages[-1]
+    line = (start_line if len(pages) == 1 else 0) + len(last) - 1
+    px = (start_px if len(pages) == 1 and len(last) == 1 else 0)
+    return px, line, last[-1]
+
+
 def build_block(idx: int, raw: bytes, tm: dict, opts: dict):
     widths = opts['widths']
     b = Block.parse(raw)
     repl = {}
     warns = []
+    carry = (0, 0)                       # (px, line) where the previous fragment stopped
     for k, run in enumerate(b.runs):
-        en = tm.get(decode_words(run.words))
+        start_px, start_line = carry if k and continues(b.words, b.runs[k - 1], run) else (0, 0)
+        jp = decode_words(run.words)
+        en = tm.get(jp)
+        choice = run.prev == 0x4003
         if not en:
+            pages = wrap.wrap(jp, {}, 10 ** 6, 99, start_px)       # JP: 8 px cells, explicit breaks
+            px, line, last = end_state(pages, start_px, start_line)
+            carry = (px + wrap.width(last, {}), line)
             continue
         where = f'{idx}:{k}'
         en = wrap.normalize(en)
-        choice = run.prev == 0x4003
-        pages = wrap.wrap(en, widths, BOX_PX, 1 if choice else BOX_LINES)
+        pages = wrap.wrap(en, widths, BOX_PX, 1 if choice else BOX_LINES, start_px, start_line)
+        px, line, last = end_state(pages, start_px, start_line)
+        carry = (px + wrap.width(last, widths), line)
         splittable = run.prev in DIALOGUE_OPS and run.next == 0x4002
         if len(pages) > 1 and not splittable:
             warns.append(f'{where}: overflow ({len(pages)} pages, {"choice" if choice else "unsplittable"}): {en[:60]}')

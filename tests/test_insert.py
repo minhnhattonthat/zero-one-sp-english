@@ -79,5 +79,31 @@ class TestHeader(unittest.TestCase):
         self.assertEqual(insert.box_header(words3, Run(4, 5, [0x8175], 0x4010, 0x4002)), [0x4030, 0x4056, 0x4006, 0x4010])
 
 
+
+class TestContinuation(unittest.TestCase):
+    def test_leading_space_kept(self):
+        self.assertEqual(wrap.wrap(' foo', W, 224, 2), [[' foo']])
+
+    def test_start_offset(self):
+        pages = wrap.wrap('aaa bbb', W, 224, 2, start_px=220)
+        self.assertEqual(pages, [['', 'aaa bbb']])        # first line full -> moves to next line
+        pages = wrap.wrap('aaa', W, 224, 2, start_px=10, start_line=1)
+        self.assertEqual(pages, [['aaa']])
+        self.assertEqual(len(wrap.wrap('x ' * 200, W, 224, 2, start_line=1)[0]), 1)
+
+    def test_fragment_continues_line(self):
+        from scripts.script import Run
+        raw = block(752)
+        b = Block.parse(raw)
+        # find a run that continues a previous fragment in the same box
+        k = next(i for i in range(1, len(b.runs)) if insert.continues(b.words, b.runs[i - 1], b.runs[i]))
+        jp0, jp1 = decode_words(b.runs[k - 1].words), decode_words(b.runs[k].words)
+        tm = {jp0: 'x' * 40, jp1: 'y' * 40}
+        out, warns = insert.build_block(752, raw, tm, {'widths': W})
+        b2 = Block.parse(out)
+        # 40 x's + 40 y's do not fit one 224px line, so the continuation must break onto line 2
+        self.assertIn(0x4001, b2.runs[k].words)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -25,18 +25,26 @@ def _split_long(word, widths, max_px):
     return out + [cur]
 
 
-def wrap(text: str, widths: dict, max_px: int, max_lines: int) -> list:
-    """-> pages, each a list of <= max_lines lines no wider than max_px."""
+def wrap(text: str, widths: dict, max_px: int, max_lines: int, start_px: int = 0, start_line: int = 0) -> list:
+    """-> pages, each a list of <= max_lines lines no wider than max_px.
+    start_px/start_line: where the text begins when it continues a fragment already in the box.
+    Leading and trailing spaces are kept (fragments join on them)."""
     lines = []
+    off = start_px
     for para in text.split('\n'):
-        cur = ''
-        for word in para.split(' '):
+        body = para.lstrip(' ')
+        line = para[:len(para) - len(body)]
+        for word in body.split(' '):
             for piece in _split_long(word, widths, max_px):
-                cand = f'{cur} {piece}' if cur else piece
-                if cur and width(cand, widths) > max_px:
-                    lines.append(cur)
-                    cur = piece
+                cand = f'{line} {piece}' if line.strip() else line + piece
+                if off + width(cand, widths) <= max_px:
+                    line = cand
+                elif line.strip() or off:
+                    lines.append(line)
+                    line, off = piece, 0
                 else:
-                    cur = cand
-        lines.append(cur)
-    return [lines[i:i + max_lines] for i in range(0, len(lines), max_lines)]
+                    line = cand
+        lines.append(line)
+        off = 0
+    first = max(1, max_lines - start_line)
+    return [lines[:first]] + [lines[i:i + max_lines] for i in range(first, len(lines), max_lines)]

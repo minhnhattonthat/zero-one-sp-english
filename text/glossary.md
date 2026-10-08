@@ -113,3 +113,5 @@ Other names: 常光寺 Joukouji (Nagomu's surname: Joukouji Nagomu); 関口シ�
 - Katakana-only speech (machine/telepathic/phone voices) → ALL CAPS, stilted, no contractions
 - Full names: 角川ツトム → Kadokawa Tsutomu; 小田トモ → Oda Tomo; 堤ナナセ → Tsutsumi Nanase
 - 肝だめし → test of courage; 部室 → clubroom; デジャビュ → deja vu; 木刀 → wooden sword; ツルギ流星群 → Tsurugi meteor shower; 宿直 → night duty
+- Fragment joining: pieces of one sentence are shown on the same line one after another. End a piece with a trailing space when the next piece continues the sentence ("This is my " + "'power'").
+- 暴走 → go haywire / run amok; 重要参考人 → material witness; ハカセ (Shirou's name for Dr. Joukouji) → the Professor; 念写 → thoughtography; 大佐 → Colonel
