@@ -105,5 +105,15 @@ class TestContinuation(unittest.TestCase):
         self.assertIn(0x4001, b2.runs[k].words)
 
 
+
+class TestOverrides(unittest.TestCase):
+    def test_override_beats_tm(self):
+        raw = block(880)
+        b = Block.parse(raw)
+        jp = decode_words(b.runs[0].words)
+        out, _ = insert.build_block(880, raw, {jp: 'From TM'}, {'widths': W, 'overrides': {'880:0': 'From override'}})
+        self.assertEqual(decode_words(Block.parse(out).runs[0].words), decode_words(insert.encode_checked('From override', 'x')))
+
+
 if __name__ == '__main__':
     unittest.main()

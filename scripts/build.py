@@ -1,4 +1,5 @@
 """Build the translated ROM: python -m scripts.build"""
+import json
 import subprocess
 import sys
 
@@ -24,8 +25,13 @@ def pointer_sites(rom_bytes: bytes, targets) -> dict:
     return sites
 
 
+def load_overrides():
+    p = rom.ROOT / 'text' / 'overrides.json'
+    return json.loads(p.read_text(encoding='utf-8')) if p.exists() else {}
+
+
 def default_opts():
-    return {'widths': font.build(b'')[2], 'patches': [asm.apply, asm.patch_loader, lambda b: ui.apply(b, ui.load()), tags.apply]}
+    return {'overrides': load_overrides(), 'widths': font.build(b'')[2], 'patches': [asm.apply, asm.patch_loader, lambda b: ui.apply(b, ui.load()), tags.apply]}
 
 
 def build_rom(tm: dict, opts: dict):

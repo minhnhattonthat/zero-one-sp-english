@@ -48,6 +48,7 @@ def end_state(pages, start_px, start_line):
 
 def build_block(idx: int, raw: bytes, tm: dict, opts: dict):
     widths = opts['widths']
+    overrides = opts.get('overrides', {})
     b = Block.parse(raw)
     repl = {}
     warns = []
@@ -55,7 +56,7 @@ def build_block(idx: int, raw: bytes, tm: dict, opts: dict):
     for k, run in enumerate(b.runs):
         start_px, start_line = carry if k and continues(b.words, b.runs[k - 1], run) else (0, 0)
         jp = decode_words(run.words)
-        en = tm.get(jp)
+        en = overrides.get(f'{idx}:{k}') or tm.get(jp)
         choice = run.prev == 0x4003
         if not en:
             pages = wrap.wrap(jp, {}, 10 ** 6, 99, start_px)       # JP: 8 px cells, explicit breaks
