@@ -44,10 +44,15 @@ end)
 
 -- dump memory regions to out dir: DUMP("name") -> name_io.bin, name_vram.bin, ...
 function DUMP(name)
-  local regions = { io = {0x04000000, 0x400}, pal = {0x05000000, 0x400}, vram = {0x06000000, 0x18000},
-                    oam = {0x07000000, 0x400}, ewram = {0x02000000, 0x40000}, iwram = {0x03000000, 0x8000} }
+  local regions = { io = {"io", 0x400}, pal = {"palette", 0x400}, vram = {"vram", 0x18000},
+                    oam = {"oam", 0x400}, ewram = {"wram", 0x40000}, iwram = {"iwram", 0x8000} }
   for k, r in pairs(regions) do
-    local fh = io.open(CFG.out .. name .. "_" .. k .. ".bin", "wb")
-    fh:write(emu:readRange(r[1], r[2])); fh:close()
+    local ok, data = pcall(function() return emu.memory[r[1]]:readRange(0, r[2]) end)
+    if ok then
+      local fh = io.open(CFG.out .. name .. "_" .. k .. ".bin", "wb")
+      fh:write(data); fh:close()
+    else
+      LOG("DUMP " .. k .. " failed: " .. tostring(data))
+    end
   end
 end
