@@ -1,0 +1,10 @@
+* text=auto eol=lf
+*.sfc binary
+*.gba binary
+*.nds binary
+*.bin binary
+*.iso binary
+*.png binary
+*.xdelta binary
+*.bps binary
+*.xlsx binary
