@@ -49,8 +49,8 @@ def build_rom(tm: dict, opts: dict):
             target = pos if site == dir_site else raw_at
             buf[site:site + 4] = (0x08000000 | target).to_bytes(4, 'little')
         pos += len(comp)
-    if pos > asm.CODE:
-        raise RuntimeError(f'script data overflows into code area: {pos:#x}')
+    if pos > ui.FREE:
+        raise RuntimeError(f'script data overflows into the UI string area: {pos:#x}')
     for patch in opts.get('patches', ()):
         patch(buf)
     return bytes(buf), report

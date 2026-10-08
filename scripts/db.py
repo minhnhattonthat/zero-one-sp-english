@@ -148,6 +148,7 @@ def apply(buf: bytearray, entries=None):
             pages.append([encode_page(en[j], f'db {b}:{i}.{j}') if j < len(en) and en[j] else p
                           for j, p in enumerate(pg)])
         data += build_blob(titles, pages, blob['order'])
+    assert NEW + len(data) <= 0x1E80000, 'database overflows into the title table'
     buf[NEW:NEW + len(data)] = data
     found = ptr.sites(bytes(buf), list(moves))
     assert found[BASE], 'no database pointer found'

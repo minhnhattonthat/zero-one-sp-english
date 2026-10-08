@@ -99,7 +99,7 @@ def apply(buf: bytearray, entries: list):
         for s in sites[int(e['addr'], 16)]:
             buf[s:s + 4] = (0x08000000 | pos).to_bytes(4, 'little')
         pos += -(-len(data) // 4) * 4
-    assert pos < 0x1F00000
+    assert pos <= 0x1E40000, f'UI strings overflow into the database area: {pos:#x}'
 
 
 def load() -> list:

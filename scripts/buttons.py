@@ -58,5 +58,6 @@ def apply(buf: bytearray):
     container = bytearray(lz77.decompress(huff.decompress(bytes(buf), SRC), 0))
     redraw(container)
     packed = huff.compress(lz77.compress(bytes(container)))
+    assert NEW + len(packed) <= 0x1EC8000, 'packed graphics overflow the next region'
     buf[NEW:NEW + len(packed)] = packed
     ptr.repoint(buf, {SRC: NEW})

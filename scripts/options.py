@@ -148,5 +148,6 @@ def apply(buf: bytearray):
     for e in EDITS:
         draw(scr, *e)
     packed = huff.compress(lz77.compress(scr.pack()))
+    assert NEW + len(packed) <= 0x1ED0000, 'packed graphics overflow the next region'
     buf[NEW:NEW + len(packed)] = packed
     ptr.repoint(buf, {SRC: NEW})
