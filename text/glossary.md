@@ -68,7 +68,7 @@
 
 Other names: 常光寺 Joukouji (Nagomu's surname: Joukouji Nagomu); 関口シン Sekiguchi Shin; 三船 Mifune (Aiko's surname: Mifune Aiko);
 ルード → "Rude"; ブラバスキー Blavatsky; ドクタージョウコウジ Dr. Joukouji; ゴトウ Gotou; ツムラ Tsumura;
-長尾 Nagao; 堤 Tsutsumi; 五色沢 Goshikizawa; 小田 Oda; 失追会長 Chairman Shitsui; ノア Noah; ゼロワン Zero One.
+長尾 Nagao; 堤 Tsutsumi; 五色沢 Goshikizawa; 小田 Oda; 矢追会長 Chairman Yaoi; ノア Noah; ゼロワン Zero One.
 
 ## Terms
 | JP | EN |

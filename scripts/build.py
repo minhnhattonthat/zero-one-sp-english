@@ -2,7 +2,7 @@
 import subprocess
 import sys
 
-from scripts import asm, extract, font, lz77, rom, ui
+from scripts import asm, extract, font, lz77, rom, tags, ui
 from scripts.insert import build_block
 
 OUT = rom.ROOT / 'build' / 'zero_one_sp_en.gba'
@@ -25,7 +25,7 @@ def pointer_sites(rom_bytes: bytes, targets) -> dict:
 
 
 def default_opts():
-    return {'widths': font.build(b'')[2], 'patches': [asm.apply, asm.patch_loader, lambda b: ui.apply(b, ui.load())]}
+    return {'widths': font.build(b'')[2], 'patches': [asm.apply, asm.patch_loader, lambda b: ui.apply(b, ui.load()), tags.apply]}
 
 
 def build_rom(tm: dict, opts: dict):
