@@ -30,3 +30,28 @@
 - Set keys in `keysRead` callback. Hold A ≥6 frames; game ignores some presses (timing).
 - Watchpoints miss STM/DMA; range watchpoints work for LDR/STR. Fast-forward via `-C fpsTarget=3000 -C audioSync=0 -C videoSync=0`.
 - Scene text after the first box did not advance with A in tests (investigate in verification).
+
+## Scene scripts from ROM
+- Loader 0x0801DC44 normally LZ77s the scene into EWRAM 0x02007000 (only ~80 KB before data at 0x0201B000).
+  Patched at 0x0801DC74 (`asm.patch_loader`) to point the interpreter (state +0x60/+0x64/+0x68) at an uncompressed copy in ROM.
+- Pieces of one line: `… 4013 <flow ops> 4010 …` continue in the same box (flow ops: 4005-400A, 4050, 4053, 4054, 4503 n).
+
+## UI strings / menus
+- SJIS (normal byte order) NUL-terminated strings, referenced from code and tables below 0x400000 (e.g. hint table 0x3AF90C..0x3B00E8).
+- `putc` (0x08010688) wraps when win[5] (col) >= win[7]; the VWF sets win[5] = ceil(pen/8)-1 after Latin glyphs.
+- Save-slot title: `『` + chapter title + `』` + `シーン` built at 0x0802E3E0; titles were 5-byte records (idx*5), now 32-byte records.
+
+## Packed graphics (Huffman 4-bit -> LZ77 -> container)
+- Container: u32 (offset,size) x4: sheet (u16 w tiles, u16 h tiles, tiles), palette, map (u16 30, u16 20, entries).
+- 0xBC62D0 title menu buttons; 0xBC117C options screen; 0xBC3114 title BG (8bpp); 0xBC1FF8 title logo animation.
+- Chapter cards: 20 blobs listed at 0x3AFAC0.
+- `scripts/gfxscan.py` decodes every Huffman stream in 0x400000-0xBCB000 and finds which blob holds given VRAM tiles.
+
+## Other text
+- Speaker tags: raw 4bpp sheet 0x63BCC0, 60 tags x 64x16 (tag id = speaker id).
+- L-menu database: three contiguous blobs at 0x62F3A4 (EVENT/PERSON/OTHERS); entry pages are story-progress variants.
+- UI sheet 0x6391F8 (16x21 tiles): Option/Save/Retry, PERSON/EVENT/OTHERS, "SELECT で時間順/名前順表示" labels.
+
+## Not handled
+- Pre-rendered message bitmaps near 0x627000-0x62B163 (save/load messages as images); no screen using them was found.
+- Debug menus/strings (sound test, script debugger) left as is.
