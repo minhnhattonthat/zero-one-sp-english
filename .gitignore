@@ -4,3 +4,4 @@ build/
 patch/
 __pycache__/
 .venv/
+.superpowers/
