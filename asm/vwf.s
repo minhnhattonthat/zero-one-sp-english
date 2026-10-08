@@ -1,18 +1,38 @@
 @ Variable-width font hook for draw_glyph (0x08010598).
 @ Entered from the hook at 0x0801059A (Thumb -> ARM via bx) after the original
 @ prologue `push {r4,r5,r7,lr}`.  r0=win r1=glyph index r2=col r3=row.
-@ win: [0]=layer [3]=tile x0 [4]=tile y0.  Layer descriptors at 0x030020C0 (12 B):
-@ [0]=char base, [8]=tiles per row, [10]=8bpp flag.
-@ Glyphs listed in VWF_MAP draw at a pixel pen; others take the original path.
+@ win: [0]=layer [3]=tile x0 [4]=tile y0 [5]=putc col [7]=width in tiles.
+@ Layer descriptors at 0x030020C0 (12 B): [0]=char base, [8]=tiles per row, [10]=8bpp flag.
+@ Glyph sources:
+@   index < 0x180 with VWF_MAP[index] != 0xFF  -> one glyph (fullwidth Latin)
+@   index >= 0x9EE0 -> ASCII pair: code = index - 0x7EC0 = (c1 << 8) | c2, two glyphs
+@                      (UI strings pack two ASCII chars per 2-byte code; c2 = 0x7F is padding)
+@ Everything else takes the original path.
 .arm
 vwf_entry:
+    ldr   r5, lit_pairlo
+    cmp   r1, r5
+    bhs   pair
     cmp   r1, #0x180
     bhs   jp_path
     ldr   r5, lit_map
     ldrb  r5, [r5, r1]
     cmp   r5, #0xff
     beq   jp_path
+    mov   r4, #0xff                   @ no second glyph
+    b     vwf
+pair:
+    sub   r5, r1, #0x7E00
+    sub   r5, r5, #0xC0               @ code = (c1 << 8) | c2
+    and   r4, r5, #0xff
+    mov   r5, r5, lsr #8
+    sub   r5, r5, #0x20               @ first glyph
+    cmp   r4, #0x7f
+    moveq r4, #0xff
+    subne r4, r4, #0x20               @ second glyph or none
+vwf:
     push  {r0-r3, r6, r8-r11}
+    push  {r4}                        @ second glyph
     ldr   r6, lit_state
     ldr   r4, [r6]
     ldrb  r7, [r6, #4]
@@ -29,6 +49,27 @@ reset:
     str   r0, [r6]
     strb  r3, [r6, #4]
 have_pen:
+    bl    blit
+    ldr   r5, [sp]
+    cmp   r5, #0xff
+    beq   one_glyph                   @ (keystone mis-assembles conditional bl to a label)
+    bl    blit
+one_glyph:
+    add   sp, sp, #4
+    ldr   r6, lit_state
+    strb  r4, [r6, #5]
+    pop   {r0-r3, r6, r8-r11}
+    add   r12, r4, #7                 @ putc wraps when win[5] (col) >= win[7]: make col
+    mov   r12, r12, lsr #3            @ follow the pixel pen, ceil(pen/8) - 1 (putc adds 1)
+    sub   r12, r12, #1
+    strb  r12, [r0, #5]
+    pop   {r4, r5, r7, lr}            @ draw_glyph epilogue
+    bx    lr
+
+@ blit: draw glyph r5 at pixel pen r4 on row r3 of window r0; r4 += advance.
+@ Clobbers r1, r2, r5-r12.
+blit:
+    push  {r0, r3, lr}
     ldr   r7, lit_font
     add   r5, r5, r5, lsl #6          @ glyph * 65
     add   r7, r7, r5
@@ -44,7 +85,7 @@ have_pen:
     add   r9, r10, r9, lsl #2         @ layer descriptor
     ldrb  r10, [r9, #10]
     cmp   r10, #0
-    bne   advance                     @ 8bpp layer: skip drawing
+    bne   blit_done                   @ 8bpp layer: skip drawing
     ldr   r10, [r9]                   @ char base
     ldrb  r11, [r9, #8]               @ tiles per row
     ldrb  r5, [r0, #3]                @ tile x0
@@ -87,17 +128,10 @@ xdone:
     add   r1, r1, #1
     cmp   r1, #16
     blo   yloop
-advance:
+blit_done:
     pop   {r8}
     add   r4, r4, r8
-    ldr   r6, lit_state
-    strb  r4, [r6, #5]
-    pop   {r0-r3, r6, r8-r11}
-    add   r12, r4, #7                 @ putc wraps when win[5] (col) >= win[7]: make col
-    mov   r12, r12, lsr #3            @ follow the pixel pen, ceil(pen/8) - 1 (putc adds 1)
-    sub   r12, r12, #1
-    strb  r12, [r0, #5]
-    pop   {r4, r5, r7, lr}            @ draw_glyph epilogue
+    pop   {r0, r3, lr}
     bx    lr
 
 jp_path:
@@ -120,3 +154,4 @@ lit_font:   .word VWF_FONT
 lit_state:  .word 0x0203FFF0
 lit_desc:   .word 0x030020C0
 lit_resume: .word 0x080105A5
+lit_pairlo: .word 0x00009EE0

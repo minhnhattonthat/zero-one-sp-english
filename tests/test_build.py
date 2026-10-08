@@ -61,5 +61,23 @@ class TestIntegrity(unittest.TestCase):
             self.assertNotIn(old, table)
 
 
+
+class TestPairEncoding(unittest.TestCase):
+    def test_ui_pairs(self):
+        from scripts import ui
+        self.assertEqual(ui.encode('Yes'), b'Ye' + b's\x7f')
+        self.assertEqual(ui.encode('Hi\n\nOK{01}'), b'Hi\n\nOK\x01')
+        self.assertEqual(ui.encode('{}'), b'')
+
+    def test_save_title_fits(self):
+        """『title』　シーンNN　HH：MM：SS{01} must stay within the game's 40-byte buffers."""
+        from scripts import titles, ui
+        parts = {e['addr']: ui.encode(e['en']) for e in ui.load() if e['addr'] in ('0xfbf60', '0xfbf64', '0xfbf6c', '0xfbf74', '0xfbe40')}
+        fixed = 4 + len(parts['0xfbf74']) + 6 * 2 + 2 * len(parts['0xfbe40']) + 1   # NN, gap, 6 digits, 2 colons, {01}
+        for t in titles.TITLES:
+            total = len(parts['0xfbf60']) + len(ui.encode(t)) + len(parts['0xfbf64']) + len(parts['0xfbf6c']) + fixed
+            self.assertLessEqual(total + 1, 40, t)
+
+
 if __name__ == '__main__':
     unittest.main()

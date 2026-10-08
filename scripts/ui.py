@@ -37,8 +37,14 @@ def decode(b: bytes):
     return ''.join(out)
 
 
+PAD = 0x7F       # pads an odd-length run; the VWF draws nothing for it
+
+
 def encode(s: str) -> bytes:
-    """EN text (ASCII + {XX} controls) -> fullwidth SJIS bytes."""
+    """EN text -> bytes. Text runs pack two ASCII chars per 2-byte code (drawn as a pair by the VWF),
+    keeping strings about as long as the Japanese; '\n' and {XX} control bytes pass through. '{}' = empty."""
+    if s == '{}':
+        return b''
     out = bytearray()
     for part in re.split(r'(\{[0-9A-F]{2}\}|\n)', s):
         if not part:
@@ -48,8 +54,9 @@ def encode(s: str) -> bytes:
         elif re.fullmatch(r'\{[0-9A-F]{2}\}', part):
             out.append(int(part[1:3], 16))
         else:
-            for w in encode_checked(part, 'ui'):
-                out += bytes((w >> 8, w & 0xFF))
+            encode_checked(part, 'ui')            # validates the VWF character set
+            data = part.encode('ascii')
+            out += data + (bytes([PAD]) if len(data) % 2 else b'')
     return bytes(out)
 
 

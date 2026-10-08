@@ -21,5 +21,17 @@ class TestVWF(unittest.TestCase):
         self.assertNotEqual(buf[asm.CODE:asm.CODE + 4], b'\xff' * 4)
 
 
+
+class TestAsmSanity(unittest.TestCase):
+    def test_no_branch_to_self(self):
+        """Guards against assembler bugs like `blne label` encoded as a branch to itself."""
+        from capstone import CS_ARCH_ARM, CS_MODE_ARM, Cs
+        src = (rom.ROOT / 'asm' / 'vwf.s').read_text().replace('VWF_MAP', '0x09F00400').replace('VWF_FONT', '0x09F00600')
+        code = asm.assemble(src, asm.CODE)
+        for ins in Cs(CS_ARCH_ARM, CS_MODE_ARM).disasm(code, 0x08000000 + asm.CODE):
+            if ins.mnemonic.startswith('b') and ins.op_str.startswith('#'):
+                self.assertNotEqual(int(ins.op_str[1:], 16), ins.address, f'{ins.address:#x} {ins.mnemonic}')
+
+
 if __name__ == '__main__':
     unittest.main()
