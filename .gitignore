@@ -3,3 +3,4 @@ rom/
 build/
 patch/
 __pycache__/
+.venv/
