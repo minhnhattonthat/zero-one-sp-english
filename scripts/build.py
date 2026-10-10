@@ -1,13 +1,12 @@
 """Build the translated ROM: python -m scripts.build"""
 import json
-import subprocess
 import sys
 
-from scripts import asm, ptr, buttons, chapters, db, extract, font, labels, lz77, options, rom, tags, titlebg, titles, ui
+from scripts import asm, bps, ptr, buttons, chapters, db, extract, font, labels, lz77, options, rom, tags, titlebg, titles, ui
 from scripts.insert import build_block
 
 OUT = rom.ROOT / 'build' / 'zero_one_sp_en.gba'
-PATCH = rom.ROOT / 'build' / 'zero_one_sp_en.xdelta'
+PATCH = rom.ROOT / 'build' / 'zero_one_sp_en.bps'
 FREE = 0x1000000            # expanded area for relocated script blocks
 # Scene scripts are stored uncompressed and run straight from ROM (asm.patch_loader): the
 # EWRAM buffer at 0x02007000 only holds ~80 KB, too small for English blocks.
@@ -60,7 +59,10 @@ def main():
     tm = extract.load_tm()
     out, report = build_rom(tm, {})
     OUT.write_bytes(out)
-    subprocess.run(['xdelta3', '-e', '-f', '-s', str(rom.CLEAN), str(OUT), str(PATCH)], check=True)
+    clean = rom.CLEAN.read_bytes()
+    p = bps.make(clean, out)
+    assert bps.apply(clean, p) == out, 'patch does not reproduce the build'
+    PATCH.write_bytes(p)
     (rom.ROOT / 'build' / 'report.txt').write_text('\n'.join(report), encoding='utf-8')
     print(f'built {OUT.name}: {len(report)} warnings')
 

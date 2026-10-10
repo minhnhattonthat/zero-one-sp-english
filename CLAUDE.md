@@ -3,12 +3,12 @@
 Skill: translate-retro-game (H:/translation/.claude/skills/translate-retro-game/SKILL.md). Read it before ROM, text or QA work.
 
 ## Commands (repo root; always `.venv/Scripts/python -X utf8 -m scripts.X`, never system python or sys.path hacks)
-- Build:   `.venv/Scripts/python -X utf8 -m scripts.build` -> build/zero_one_sp_en.gba + .xdelta (xdelta3 on PATH), build/report.txt (warnings)
+- Build:   `.venv/Scripts/python -X utf8 -m scripts.build` -> build/zero_one_sp_en.gba + .bps (scripts/bps.py, re-apply verified), build/report.txt (warnings)
 - Check:   `.venv/Scripts/python -X utf8 -m unittest discover -s tests -t . -q` (32 tests, ~53 s; pre-commit hook runs it)
 - Smoke:   `python -X utf8 H:/translation/.claude/skills/translate-retro-game/scripts/emu.py build/zero_one_sp_en.gba --out work/qa/smoke --frames 1800 --smoke` (finds tools/mgba/mGBA.exe)
 - Extract: `-m scripts.extract` (scene text -> text/<idx>.json + tm.json); `-m scripts.ui extract` (refresh text/ui.json)
 - Batches: `-m scripts.batches split|check bNNN|merge`; fragments `-m scripts.fragments split|merge`; overflow `-m scripts.fit list|check "text"|merge`
-- Release: README patch = build/zero_one_sp_en.xdelta against clean 16 MiB ROM (output 32 MiB). Never publish without the user.
+- Release: README patch = build/zero_one_sp_en.bps against clean 16 MiB ROM (output 32 MiB). Never publish without the user.
 
 ## Modules (scripts/)
 rom: paths, resource dir 0xFD2A0C (884 LZ77 ptrs), scenes 752-883 | lz77, huff: BIOS codecs | script: scene block codec

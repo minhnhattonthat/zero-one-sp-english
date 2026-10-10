@@ -3,18 +3,17 @@
 Fan translation of *Zero One SP* (GBA, Fuuki 2004).
 
 ## Apply the patch
-Use `build/zero_one_sp_en.xdelta` with xdelta3 (or Delta Patcher) on the original ROM:
-`Zero One SP (Japan).gba` (16 MiB, game code `BZOJ`). The result is a 32 MiB ROM.
+Use `build/zero_one_sp_en.bps` with any BPS patcher (Floating IPS, Rom Patcher JS, beat) on the original ROM:
+`Zero One SP (Japan).gba` (16 MiB, game code `BZOJ`, CRC32 `FD6CE886`). The result is a 32 MiB ROM.
 
 ## Build from source
 ```
 python -m venv .venv
 .venv/Scripts/python -m pip install -r requirements.txt
 # put the clean ROM at rom/Zero One SP (Japan).gba
-.venv/Scripts/python -m scripts.build          # -> build/zero_one_sp_en.gba + .xdelta, build/report.txt
+.venv/Scripts/python -m scripts.build          # -> build/zero_one_sp_en.gba + .bps, build/report.txt
 .venv/Scripts/python -m unittest discover -s tests -t .
 ```
-`xdelta3` must be on PATH.
 
 ## Layout
 - `text/tm.json` — Japanese → English for every scene line; `text/overrides.json` — per-occurrence fixes (`block:run`).
