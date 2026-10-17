@@ -23,3 +23,9 @@ python -m venv .venv
 
 ## Notes
 - Debug menus and the sound test are left untranslated.
+
+## Support
+
+If you enjoy this translation, you can support my work on Ko-fi:
+
+[![Support me on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/minhnhattonthat)
