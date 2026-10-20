@@ -33,6 +33,7 @@ batches/fragments/fit: translation batch tooling
 - 「」->"..", （）->(..), 『』->'..', 【】->[..]; ASCII only; SFX *Slam!*; katakana-only speech -> ALL CAPS.
 - Choices <= 45 chars, one line. Box = 2 lines x 224 px VWF; no manual line breaks. Debug menus/sound test stay JP.
 - Gotchas: savestates hide code/VRAM changes (cold boot); scripts run uncompressed from ROM (EWRAM ~80 KB too small).
+- Player bug reports: GitHub issues (`gh issue list --label bug`). Copy the attached save into `work/states/`, reproduce in the emulator, fix, commit with `Fixes #N`, and update the Status section.
 
 ## Status
 - Done: all scenes (37,115 TM lines, 0 build warnings), UI, L-menu DB, name tags, title/options/chapter graphics.

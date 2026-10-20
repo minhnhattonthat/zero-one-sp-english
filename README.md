@@ -2,6 +2,9 @@
 
 Fan translation of *Zero One SP* (GBA, Fuuki 2004).
 
+**Found a bug?** [Report it](../../issues/new/choose): untranslated text, typos, overflow, crashes. Attaching a savestate
+helps most.
+
 ## Apply the patch
 Use `build/zero_one_sp_en.bps` with any BPS patcher (Floating IPS, Rom Patcher JS, beat) on the original ROM:
 `Zero One SP (Japan).gba` (16 MiB, game code `BZOJ`, CRC32 `FD6CE886`). The result is a 32 MiB ROM.
