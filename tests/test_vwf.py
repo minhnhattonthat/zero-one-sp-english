@@ -1,6 +1,6 @@
 import unittest
-from scripts import asm, font, rom
-from scripts.script import _char_word
+import asm, font, rom
+from script import _char_word
 
 
 class TestVWF(unittest.TestCase):

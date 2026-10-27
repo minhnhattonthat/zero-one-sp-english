@@ -1,5 +1,5 @@
 import unittest
-from scripts import lz77, rom
+import lz77, rom
 
 
 class TestLZ77(unittest.TestCase):

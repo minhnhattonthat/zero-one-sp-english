@@ -1,7 +1,7 @@
 import struct
 import unittest
-from scripts import lz77, rom
-from scripts.script import Block, decode_words, encode_text
+import lz77, rom
+from script import Block, decode_words, encode_text
 
 R = rom.load_clean()
 

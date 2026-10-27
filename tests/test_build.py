@@ -1,5 +1,5 @@
 import unittest
-from scripts import build, lz77, rom
+import build, lz77, rom
 
 
 class TestBuild(unittest.TestCase):
@@ -28,7 +28,7 @@ class TestBuild(unittest.TestCase):
 
 class TestUI(unittest.TestCase):
     def test_ui_relocation(self):
-        from scripts import ui
+        import ui
         clean = bytearray(rom.load_clean()) + b'\xff' * (16 << 20)
         ents = ui.extract(bytes(clean))
         ents[0]['en'] = 'End'
@@ -55,7 +55,7 @@ class TestIntegrity(unittest.TestCase):
                              lz77.decompress(self.clean, rom.res_ptr(self.clean, idx)), idx)
 
     def test_db_blobs_repointed(self):
-        from scripts import db
+        import db
         table = memoryview(self.out[0x644040:0x644080]).cast('I')
         for old in (0x0862F3A4, 0x08632EFC, 0x08635D0C):
             self.assertNotIn(old, table)
@@ -64,14 +64,14 @@ class TestIntegrity(unittest.TestCase):
 
 class TestPairEncoding(unittest.TestCase):
     def test_ui_pairs(self):
-        from scripts import ui
+        import ui
         self.assertEqual(ui.encode('Yes'), b'Ye' + b's\x7f')
         self.assertEqual(ui.encode('Hi\n\nOK{01}'), b'Hi\n\nOK\x01')
         self.assertEqual(ui.encode('{}'), b'')
 
     def test_save_title_fits(self):
         """『title』　シーンNN　HH：MM：SS{01} must stay within the game's 40-byte buffers."""
-        from scripts import titles, ui
+        import titles, ui
         parts = {e['addr']: ui.encode(e['en']) for e in ui.load() if e['addr'] in ('0xfbf60', '0xfbf64', '0xfbf6c', '0xfbf74', '0xfbe40')}
         fixed = 4 + len(parts['0xfbf74']) + 6 * 2 + 2 * len(parts['0xfbe40']) + 1   # NN, gap, 6 digits, 2 colons, {01}
         for t in titles.TITLES:

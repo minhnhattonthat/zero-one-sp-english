@@ -1,6 +1,6 @@
 import unittest
-from scripts import font, insert, lz77, rom, wrap
-from scripts.script import Block, decode_words
+import font, insert, lz77, rom, wrap
+from script import Block, decode_words
 
 W = font.build(b'')[2]
 R = rom.load_clean()
@@ -67,7 +67,7 @@ class TestInsert(unittest.TestCase):
 
 class TestHeader(unittest.TestCase):
     def test_header_replay(self):
-        from scripts.script import Run
+        from script import Run
         words = [0x4013, 0x4030, 0x4006, 0x4056, 0x23, 0x4009, 0x4050, 0x4010, 0x8175, 0x4002]
         run = Run(8, 9, [0x8175], 0x4010, 0x4002)
         self.assertEqual(insert.box_header(words, run), [0x4030, 0x4056, 0x23, 0x4009, 0x4050, 0x4010])
@@ -92,7 +92,7 @@ class TestContinuation(unittest.TestCase):
         self.assertEqual(len(wrap.wrap('x ' * 200, W, 224, 2, start_line=1)[0]), 1)
 
     def test_fragment_continues_line(self):
-        from scripts.script import Run
+        from script import Run
         raw = block(752)
         b = Block.parse(raw)
         # find a run that continues a previous fragment in the same box

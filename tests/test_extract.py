@@ -1,5 +1,5 @@
 import unittest
-from scripts import extract, rom
+import extract, rom
 
 
 class TestExtract(unittest.TestCase):

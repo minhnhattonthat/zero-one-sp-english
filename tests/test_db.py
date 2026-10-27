@@ -1,5 +1,5 @@
 import unittest
-from scripts import db, rom
+import db, rom
 
 
 class TestDB(unittest.TestCase):
