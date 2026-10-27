@@ -4,8 +4,8 @@ Skill: translate-retro-game (Claude Code: plugin, enabled in .claude/settings.js
 
 ## Commands (run from repo root; always `.venv/Scripts/python -X utf8`, never system python)
 - Build:    `.venv/Scripts/python -X utf8 tools/build.py` -> build/zero_one_sp_en.gba + .bps (tools/bps.py, re-apply verified), build/report.txt (warnings); checks the dump against `rom.sha1` first
-- Check:    `.venv/Scripts/python -X utf8 tools/check.py` (unittest, 32 tests, ~53 s; the pre-commit hook runs this)
-- Smoke:    `python -X utf8 $SKILL/scripts/emu.py build/zero_one_sp_en.gba --out work/qa/smoke --frames 1800 --smoke` (finds tools/mgba/mGBA.exe)
+- Check:    `.venv/Scripts/python -X utf8 tools/check.py` (unittest, 34 tests, ~90 s; the pre-commit hook runs this)
+- Smoke:    `python -X utf8 $SKILL/scripts/emu.py build/zero_one_sp_en.gba --out work/qa/smoke --frames 1800 --smoke` (Mesen: tools/mesen/Mesen.exe + Firmware/gba_bios.bin, via `$SKILL/scripts/fetch_emu.py mesen|gba-bios`; QA in Mesen, not mGBA)
 - Extract:  `tools/extract.py` (scene text -> script/<idx>.json + tm.json); `tools/ui.py extract` (refresh script/ui.json)
 - Batches:  `tools/batches.py split|check bNNN|merge`; fragments `tools/fragments.py split|merge`; overflow `tools/fit.py list|check "text"|merge`
 - Release:  README patch = build/zero_one_sp_en.bps against the clean 16 MiB ROM (output 32 MiB). Never publish without the user.
@@ -20,7 +20,7 @@ gfxscan: find packed gfx | disasm: capstone disasm | emu + tools/lua/harness.lua
 batches/fragments/fit: translation batch tooling | check_rom: dump SHA-1 gate | check: one-command check
 
 ## Paths
-- Original ROM: `rom/Zero One SP (Japan).gba` (gitignored; SHA-1 in `rom.sha1`, checked by `tools/check_rom.py`). Emulator: mGBA in `tools/mgba/` (gitignored). Savestates: `work/states/`. Old patch ref: `patch/` (gitignored).
+- Original ROM: `rom/Zero One SP (Japan).gba` (gitignored; SHA-1 in `rom.sha1`, checked by `tools/check_rom.py`). Emulator: Mesen in `tools/mesen/` (gitignored) for QA; mGBA in `tools/mgba/` only for the old Lua RE harness (tools/emu.py). Savestates: `work/states/` (`i1_classroom.mss` = Mesen, classroom, DB has Shin). Old patch ref: `patch/` (gitignored).
 - Text: `script/` (`tm.json` JP->EN per line, `overrides.json` per occurrence `block:run`, `ui.json`, `db.json`, `speakers.json`, `<idx>.json` extracted scenes; batches in `script/batches/`, gitignored). Glossary: `glossary.md`. RE notes index: `docs/re/README.md`. Fonts and their licences: `docs/fonts.md`. Design/plan: `docs/superpowers/`.
 - Briefs: `docs/translator-brief.md` (bNNN), `docs/fragment-brief.md` (fNNN).
 - build/ holds untracked scratch fixNN.py scripts: promote anything reusable into tools/.
