@@ -59,6 +59,7 @@ def build(rom: bytes):
         out.append(adv)
         for y in range(16):
             out += bytes(px[y][i] | px[y][i + 1] << 4 for i in range(0, 8, 2))
+    out += bytes(65)      # 0x7F: blank, zero advance (pads DB titles, db.encode_title)
     return bytes(vmap), bytes(out), widths
 
 

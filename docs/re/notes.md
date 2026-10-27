@@ -54,6 +54,13 @@
 ## Other text
 - Speaker tags: raw 4bpp sheet 0x63BCC0, 60 tags x 64x16 (tag id = speaker id).
 - L-menu database: three contiguous blobs at 0x62F3A4 (EVENT/PERSON/OTHERS); entry pages are story-progress variants.
+  - List (0x0802F6xx): window 0x03003034 (8 tiles x 5 rows). Per row: fill(r7+0x2C, 0x8140, 9, 2, 0) = 8 fullwidth
+    spaces + 0x0001, then memcpy(buf, title, strlen) and puts (0x08010900). Buffer is 24 bytes below the saved regs:
+    a title over 8 words smashes the stack (issue #1, froze on hardware). EN titles: ASCII pairs padded to 8 words.
+  - The VWF draws 0x8140 as an inkless VWF space, so rows never cleared: `asm.patch_db_list` hooks the fill to wipe
+    the row's tiles (0x11111111) first. Verified: SELECT re-sort and tab switches redraw cleanly (mGBA).
+  - Description: window 0x03003040 (15 tiles x 4 rows), puts straight from ROM. putc wraps right after a glyph
+    whose pen ends past 112 px; PERSON portrait covers rows 1-2 from x=200 (88 px of text).
 - UI sheet 0x6391F8 (16x21 tiles): Option/Save/Retry, PERSON/EVENT/OTHERS, "SELECT で時間順/名前順表示" labels.
 
 ## Not handled

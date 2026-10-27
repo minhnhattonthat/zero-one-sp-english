@@ -22,7 +22,7 @@ def load_overrides():
 
 
 def default_opts():
-    return {'overrides': load_overrides(), 'widths': font.build(b'')[2], 'patches': [asm.apply, asm.patch_loader, lambda b: ui.apply(b, ui.load()), tags.apply, titles.apply, db.apply, labels.apply, buttons.apply, options.apply, chapters.apply, titlebg.apply]}
+    return {'overrides': load_overrides(), 'widths': font.build(b'')[2], 'patches': [asm.apply, asm.patch_loader, asm.patch_db_list,lambda b: ui.apply(b, ui.load()), tags.apply, titles.apply, db.apply, labels.apply, buttons.apply, options.apply, chapters.apply, titlebg.apply]}
 
 
 def build_rom(tm: dict, opts: dict):

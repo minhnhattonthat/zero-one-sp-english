@@ -153,7 +153,7 @@ mark:
     ldrb  r12, [r0, #7]               @ width in tiles
     mov   r1, r5, lsr #3              @ first cell
     sub   r2, r4, #1
-    mov   r2, r2, lsr #3              @ last cell
+    mov   r2, r2, asr #3              @ last cell (-1 for a zero-advance glyph at pen 0)
     cmp   r2, r12
     subge r2, r12, #1
     subs  r2, r2, r1
