@@ -29,8 +29,8 @@ helps most.
 Needs Python 3.12+ and your own dump of the Japanese game.
 
 ```sh
-git clone https://github.com/minhnhattonthat/zero-one-sp
-cd zero-one-sp
+git clone https://github.com/minhnhattonthat/zero-one-sp-english
+cd zero-one-sp-english
 python -m venv .venv
 .venv/Scripts/python -m pip install -r requirements.txt
 # copy your dump to: rom/Zero One SP (Japan).gba
