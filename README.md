@@ -9,6 +9,19 @@ no game data you can play; you need your own dump of the Japanese game.
 **Found a bug?** [Report it](../../issues/new/choose): untranslated text, typos, overflow, crashes. Attaching a savestate
 helps most.
 
+## Translation status
+
+| Part | Status |
+|---|---|
+| Dialogue / story (every scene) | Translated |
+| Menus, choices, system messages, speaker name tags | Translated |
+| L-button database | Translated (long list titles show the family name as an initial: J. Nobuhiko) |
+| Title screen, options screen, chapter cards | Translated |
+| Debug menus and sound test | Left in Japanese (debug screens) |
+
+Known issues: one choice prompt cannot be selected (open bug); a full 5-row database list scroll late in the game and
+real hardware are not yet checked.
+
 ## What's here
 
 | Path | What it is |
